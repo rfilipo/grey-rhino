@@ -1,0 +1,21 @@
+project: grey-rhino
+kind: community-operations
+title: Grey Rhino (Rinoceronte Cinza) — Discord community operations case
+language:
+  posts: pt-BR
+  documents: en
+surfaces:
+  - discord
+operators:
+  host_editor: Monsenhor (Ricardo Filipo)
+  chief_analyst: Yuno (Daniel Filipo)
+models:
+  runtime: local (ollama)
+  mentor: qwen2.5-coder:7b  # to be re-evaluated under the model-environment plan (K-AIDF #163-#168)
+guardrails:
+  human_approval: every publication, no exceptions
+  red_lines:
+    - no investment recommendations or signals (CVM/SEC)
+    - no member is required to appear on camera, audio or live
+    - secrets only in the vault, never in the repository
+status: preparation-mode  # execution gated on formal member approval (2026-11-18 suspension)
