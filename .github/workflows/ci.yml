@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  front-matter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Front Matter v2 completeness (.kaidf docs)
+        run: |
+          python3 - <<'PY'
+          import glob, sys
+          try:
+              import yaml
+          except ImportError:
+              import subprocess
+              subprocess.check_call([sys.executable, "-m", "pip", "install", "--quiet", "pyyaml"])
+              import yaml
+          REQ = ("id", "title", "document_class", "phase", "visibility", "status")
+          bad = []
+          for f in sorted(glob.glob(".kaidf/**/*.md", recursive=True)):
+              t = open(f, encoding="utf-8", errors="replace").read().replace("\r\n", "\n")
+              d = {}
+              if t.startswith("---\n"):
+                  e = t.find("\n---\n", 4)
+                  if e != -1:
+                      try:
+                          d = yaml.safe_load(t[4:e]) or {}
+                      except Exception:
+                          d = {}
+              missing = [k for k in REQ if not (isinstance(d, dict) and d.get(k))]
+              if missing:
+                  bad.append(f"{f}: missing {','.join(missing)}")
+          if bad:
+              print("\n".join(bad))
+              sys.exit(1)
+          print("All .kaidf documents carry complete Front Matter v2.")
+          PY
+      - name: Required files present
+        run: |
+          test -f README.md
+          test -f ops/editorial-policy.md
+          test -f ops/weekly-cycle.md
+          test -f automation/README.md
